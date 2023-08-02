@@ -1,20 +1,28 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class StudentsGroup {
     private Student captain;
     private List<Student> students;
     private List<String> tasks;
+    private Map<String, List<Student>> completedTasks;
 
     public StudentsGroup(Student captain) {
         this.captain = captain;
         this.students = new ArrayList<>();
+        this.students.add(captain);
         this.tasks = new ArrayList<>();
+        this.completedTasks = new HashMap<>();
     }
 
     public void changeCaptain(Student newCaptain) {
+        if (!students.contains(newCaptain)) {
+            students.add(newCaptain);
+        }
         this.captain = newCaptain;
     }
 
@@ -23,6 +31,10 @@ public class StudentsGroup {
     }
 
     public void removeStudent(Student student) {
+        if (student.equals(captain)) {
+            System.out.println("Старосту не можна видалити з групи.");
+            return;
+        }
         students.remove(student);
     }
 
@@ -31,19 +43,14 @@ public class StudentsGroup {
     }
 
     public boolean markTaskDone(Student student, String task) {
-        int studentId = student.getStudentId();
-        for (Student s : students) {
-            if (s.getStudentId() == studentId) {
-                // Assume each task is unique, otherwise, you can use a task_id instead of a task string
-                if (tasks.contains(task)) {
-                    // Here, you can perform any additional checks or validation before marking the task done.
-                    tasks.remove(task);
-                    return true;
-                } else {
-                    return false;
-                }
-            }
+        if (!tasks.contains(task)) {
+            System.out.println("Завдання '" + task + "' не знайдено.");
+            return false;
         }
+
+        List<Student> studentsWhoCompletedTask = completedTasks.getOrDefault(task, new ArrayList<>());
+        studentsWhoCompletedTask.add(student);
+        completedTasks.put(task, studentsWhoCompletedTask);
         return false;
     }
 }
